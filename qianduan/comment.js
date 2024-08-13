@@ -168,20 +168,6 @@ function createCommentElement(text, author) {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function handleFileSelect(event) {
   const file = event.target.files[0];
   if (file) {
@@ -233,7 +219,6 @@ function removeAttachmentFromLocalStorage(taskName, filename) {
 loadAttachments(taskName);
 
 function loadAttachments(taskName) {
-  // 清空现有附件列表
   const attachmentsList = document.getElementById('attachments-list');
   attachmentsList.innerHTML = '';
   for (let i = 0; i < localStorage.length; i++) {
@@ -255,3 +240,5 @@ function displayAttachment(attachmentData) {
   `;
   attachmentsList.appendChild(attachmentElement);
 }
+
+
