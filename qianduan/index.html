@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>任务清单</title>
+  <link rel="stylesheet" href="src/index.css" />
+
+</head>
+
+<body>
+  <h1>任务清单</h1>
+
+<div id="root"></div>
+  <div class="login-container">
+    <form id="login-form">
+      <h2>登录</h2>
+      <div class="form-group">
+        <label for="username">用户名:</label>
+        <input type="text" id="username" name="username" required>
+      </div>
+      <div class="form-group">
+        <button type="submit">登录</button>
+      </div>
+    </form>
+  </div>
+  <script src="login.js"></script>
+  
+
+  
+  <div id="container">
+    <div class="image-container" id="bottom-left"><img src="mainUIbottomleft.webp" /></div>
+    <div class="image-container" id="top-right"><img src="mainUItopright.webp" /></div>
+    <div class="image-container" id="top-left"><img src="mainUItopleft.webp" /></div>
+  </div>
+
+
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
+</html>

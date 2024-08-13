@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>任务清单</title>
+  <link rel="stylesheet" href="src/tasklist.css" />
+
+</head>
+
+<body>
+  <h1>My Task List Board</h1>
+
+  <div id="app">
+    
+    <form id="create-board-form">
+      <input type="text" id="board-name" placeholder="输入看板名称" required>
+      <button type="submit">创建看板</button>
+    </form>
+
+  
+    <form id="create-card-form">
+      <input type="text" id="card-name" placeholder="输入任务名称" required>
+      <button type="submit" disabled>创建任务</button> 
+    </form>
+
+  
+    <div id="boards-container"></div>
+  </div>
+  <script src="tasklist.js"></script>
+
+
+</body>
+
+</html>
