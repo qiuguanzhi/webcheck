@@ -53,8 +53,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (newText) {
           content.textContent = newText;
 
-          updateCommentOnPage(comment, newText);
-
           saveCommentsToLocalStorage(taskName);
         }
         editInput.remove();
@@ -106,18 +104,24 @@ function removeCommentFromLocalStorage(taskName, commentContent) {
   const commentsStr = localStorage.getItem(`comments-${taskName}`);
   if (commentsStr) {
     let commentData = JSON.parse(commentsStr);
-
     commentData.comments = commentData.comments.filter(c => c !== commentContent);
-
 
     if (commentData.comments.length === 0) {
       localStorage.removeItem(`comments-${taskName}`);
     } else {
+    
       localStorage.setItem(`comments-${taskName}`, JSON.stringify(commentData));
     }
-  }
 
-  saveCommentsToLocalStorage(taskName);
+    const commentElements = commentList.querySelectorAll('.comment');
+    for (let i = commentElements.length - 1; i >= 0; i--) {
+      const element = commentElements[i];
+      if (element.querySelector('.comment-content').textContent === commentContent) {
+        commentList.removeChild(element);
+        break;
+      }
+    }
+  }
 }
 function loadCommentsFromLocalStorage(taskName) {
   const commentsStr = localStorage.getItem(`comments-${taskName}`);

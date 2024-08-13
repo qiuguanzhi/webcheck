@@ -81,26 +81,72 @@ document.addEventListener('DOMContentLoaded', function () {
         editTrigger.title = '点击编辑任务';
 
 
+
+
+
         editTrigger.addEventListener('click', function (event) {
             event.stopPropagation();
+            const taskItem = taskName.parentNode;
+            const board = taskItem.closest('.kanban-board');
+            const boardName = board.querySelector('h2').textContent;
+            const taskContent = taskName.textContent;
+            removeTaskFromLocalStorage(taskContent, boardName);
+
             taskName.contentEditable = true;
             taskName.focus();
             editTrigger.style.display = 'none';
         });
-        taskName.addEventListener('blur', function () {
+        function removeTaskFromLocalStorage(taskContent, boardName) {
+            let boardsData = JSON.parse(localStorage.getItem(`${username}-boards`)) || {};
+            if (boardsData[boardName]) {
+                const newTasks = boardsData[boardName].filter(task => task.content !== taskContent);
+                boardsData[boardName] = newTasks;
+                localStorage.setItem(`${username}-boards`, JSON.stringify(boardsData));
+            }
+        }
+        taskName.addEventListener('blur', function (event) {
             taskName.contentEditable = false;
             editTrigger.style.display = 'inline';
+            const newTaskName = taskName.textContent.trim();
+            if (newTaskName === '') {
+                taskName.textContent = event.target.previousSibling.textContent;
+                return;
+            }
+        
+            const taskItem = taskName.parentNode;
+            const board = taskItem.closest('.kanban-board');
+            const boardName = board.querySelector('h2').textContent;
+        
+            saveTaskToLocalStorage(newTaskName, boardName);
         });
+        function saveTaskToLocalStorage(taskContent, boardName) {
+            let boardsData = JSON.parse(localStorage.getItem(`${username}-boards`)) || {};
+            const task = { content: taskContent };
+            if (!boardsData[boardName]) {
+                boardsData[boardName] = [];
+            }
+            boardsData[boardName].push(task);
+            localStorage.setItem(`${username}-boards`, JSON.stringify(boardsData));
+        }
+
+
+
+
         newTask.appendChild(taskName);
         newTask.appendChild(editTrigger);
         newTask.addEventListener('click', function () {
             const taskText = cardName;
-            const encodedTaskText = encodeURIComponent(taskText); 
+            const encodedTaskText = encodeURIComponent(taskText);
             window.location.href = `comment.html?taskName=${encodedTaskText}`;
         });
         taskList.appendChild(newTask);
         saveBoards();
     }
+
+
+
+
+
 
     function saveBoards() {
         const boards = document.querySelectorAll('.kanban-board');
@@ -143,30 +189,30 @@ document.addEventListener('DOMContentLoaded', function () {
             saveBoards();
         }
     }
-    
-    document.addEventListener('contextmenu', function(event) {
+
+    document.addEventListener('contextmenu', function (event) {
         if (event.target.classList.contains('task-item')) {
             event.preventDefault();
             const deleteButton = document.createElement('button');
             deleteButton.innerHTML = '删除';
             deleteButton.style.padding = '5px 10px';
-            deleteButton.style.fontSize = '12px'; 
-            deleteButton.style.cursor = 'pointer'; 
-            deleteButton.style.position = 'fixed'; 
+            deleteButton.style.fontSize = '12px';
+            deleteButton.style.cursor = 'pointer';
+            deleteButton.style.position = 'fixed';
             deleteButton.style.top = `${event.pageY + 5}px`;
-            deleteButton.style.left = `${event.pageX + 5}px`; 
-    
-            deleteButton.addEventListener('click', function() {
+            deleteButton.style.left = `${event.pageX + 5}px`;
+
+            deleteButton.addEventListener('click', function () {
                 removeTask(event.target.closest('.task-item'));
                 document.body.removeChild(deleteButton);
             });
-    
+
             document.body.appendChild(deleteButton);
-            deleteButton.addEventListener('click', function(e) {
+            deleteButton.addEventListener('click', function (e) {
                 e.stopPropagation();
             });
-    
-            document.addEventListener('click', function() {
+
+            document.addEventListener('click', function () {
                 if (deleteButton) {
                     document.body.removeChild(deleteButton);
                     deleteButton = null;
