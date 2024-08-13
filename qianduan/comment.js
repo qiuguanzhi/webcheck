@@ -95,7 +95,7 @@ function loadCommentsFromLocalStorage(taskName) {
   if (commentsStr) {
     const commentsObj = JSON.parse(commentsStr);
     commentsObj.comments.forEach(text => {
-      addComment(text, commentsObj.username, commentsObj.taskName);
+      addComment(text, commentsObj.taskName, commentsObj.username);
     });
   }
 }
