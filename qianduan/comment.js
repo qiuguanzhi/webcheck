@@ -1,4 +1,5 @@
 const commentList = document.querySelector('.comment-list');
+let commentsLoaded = false;
 document.addEventListener('DOMContentLoaded', function () {
  
   const addCommentButton = document.querySelector('.add-comment button');
@@ -15,6 +16,10 @@ document.addEventListener('DOMContentLoaded', function () {
     taskNameElement.style.color = '#1e4d2b';
     taskNameElement.style.textAlign = 'center';
     taskNameElement.style.textShadow = '2px 2px 4px rgba(0, 0, 0, 0.5)';
+  }
+  if (!commentsLoaded) {
+    loadCommentsFromLocalStorage(taskName);
+    commentsLoaded = true; 
   }
 
   addCommentButton.addEventListener('click', function (event) {
@@ -59,20 +64,58 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (deleteButton) {
-      const comment = deleteButton.closest('.comment');
-      comment.remove();
+      
+      const commentContent = deleteButton.closest('.comment').querySelector('.comment-content').textContent;
+      
+      removeCommentFromLocalStorage(taskName, commentContent);
+      deleteButton.closest('.comment').remove();
     }
   });
 });
 
+function removeCommentFromLocalStorage(taskName, commentContent) {
+  const commentsStr = localStorage.getItem(`comments-${taskName}`);
+  if (commentsStr) {
+    let commentData = JSON.parse(commentsStr);
+  
+    commentData.comments = commentData.comments.filter(c => c !== commentContent);
+    
+
+    if (commentData.comments.length === 0) {
+      localStorage.removeItem(`comments-${taskName}`);
+    } else {
+      localStorage.setItem(`comments-${taskName}`, JSON.stringify(commentData));
+    }
+  }
+}
+
+
+function loadCommentsFromLocalStorage(taskName) {
+  const commentsStr = localStorage.getItem(`comments-${taskName}`);
+  if (commentsStr) {
+    const commentsObj = JSON.parse(commentsStr);
+    commentsObj.comments.forEach(text => {
+      addComment(text, commentsObj.username, commentsObj.taskName);
+    });
+  }
+}
+
+
 function addComment(text, taskName, username) {
   const newComment = createCommentElement(text, username);
   commentList.appendChild(newComment);
-  const commentData = {
-    taskName: taskName,
-    username: username,
-    comments: [text]
-  };
+  
+  let commentData = localStorage.getItem(`comments-${taskName}`);
+  if (commentData) {
+    commentData = JSON.parse(commentData);
+    commentData.comments.push(text);
+  } else {
+    commentData = {
+      taskName: taskName,
+      username: username,
+      comments: [text]
+    };
+  }
   localStorage.setItem(`comments-${taskName}`, JSON.stringify(commentData));
 }
 
