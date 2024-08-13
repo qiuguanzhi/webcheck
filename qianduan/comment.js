@@ -1,12 +1,13 @@
 const commentList = document.querySelector('.comment-list');
 let commentsLoaded = false;
+const urlParams = new URLSearchParams(window.location.search);
+const taskName = urlParams.get('taskName');
+const username = localStorage.getItem('username');
 document.addEventListener('DOMContentLoaded', function () {
- 
+
   const addCommentButton = document.querySelector('.add-comment button');
   const addTextarea = document.querySelector('.add-comment textarea');
-  const urlParams = new URLSearchParams(window.location.search);
-  const taskName = urlParams.get('taskName');
-  const username = localStorage.getItem('username');
+
 
   if (taskName) {
     const taskNameElement = document.getElementById('task-name');
@@ -19,9 +20,9 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   if (!commentsLoaded) {
     loadCommentsFromLocalStorage(taskName);
-    commentsLoaded = true; 
+    commentsLoaded = true;
   }
-
+  loadAttachments(taskName);
   addCommentButton.addEventListener('click', function (event) {
     const commentText = addTextarea.value.trim();
     if (commentText) {
@@ -51,6 +52,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const newText = this.value.trim();
         if (newText) {
           content.textContent = newText;
+
+          updateCommentOnPage(comment, newText);
+
+          saveCommentsToLocalStorage(taskName);
         }
         editInput.remove();
       });
@@ -64,22 +69,46 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (deleteButton) {
-      
-      const commentContent = deleteButton.closest('.comment').querySelector('.comment-content').textContent;
-      
+      const comment = deleteButton.closest('.comment');
+      const commentContent = comment.querySelector('.comment-content').textContent;
       removeCommentFromLocalStorage(taskName, commentContent);
-      deleteButton.closest('.comment').remove();
+      comment.remove();
     }
-  });
-});
 
+    const fileUploadInput = document.createElement('input');
+    fileUploadInput.type = 'file';
+    fileUploadInput.style.display = 'none';
+    document.body.appendChild(fileUploadInput);
+
+    fileUploadInput.addEventListener('change', handleFileSelect);
+  });
+
+
+});
+function saveCommentsToLocalStorage(taskName) {
+
+  localStorage.removeItem(`comments-${taskName}`);
+
+
+  const comments = [];
+  const commentContents = commentList.querySelectorAll('.comment-content');
+  commentContents.forEach(element => {
+    comments.push(element.textContent);
+  });
+  const commentData = {
+    taskName: taskName,
+    username: username,
+    comments: comments
+  };
+  localStorage.setItem(`comments-${taskName}`, JSON.stringify(commentData));
+}
 function removeCommentFromLocalStorage(taskName, commentContent) {
   const commentsStr = localStorage.getItem(`comments-${taskName}`);
   if (commentsStr) {
     let commentData = JSON.parse(commentsStr);
-  
+
     commentData.comments = commentData.comments.filter(c => c !== commentContent);
-    
+
 
     if (commentData.comments.length === 0) {
       localStorage.removeItem(`comments-${taskName}`);
@@ -87,9 +116,9 @@ function removeCommentFromLocalStorage(taskName, commentContent) {
       localStorage.setItem(`comments-${taskName}`, JSON.stringify(commentData));
     }
   }
+
+  saveCommentsToLocalStorage(taskName);
 }
-
-
 function loadCommentsFromLocalStorage(taskName) {
   const commentsStr = localStorage.getItem(`comments-${taskName}`);
   if (commentsStr) {
@@ -99,12 +128,10 @@ function loadCommentsFromLocalStorage(taskName) {
     });
   }
 }
-
-
 function addComment(text, taskName, username) {
   const newComment = createCommentElement(text, username);
   commentList.appendChild(newComment);
-  
+
   let commentData = localStorage.getItem(`comments-${taskName}`);
   if (commentData) {
     commentData = JSON.parse(commentData);
@@ -117,6 +144,7 @@ function addComment(text, taskName, username) {
     };
   }
   localStorage.setItem(`comments-${taskName}`, JSON.stringify(commentData));
+  saveCommentsToLocalStorage(taskName);
 }
 
 function createCommentElement(text, author) {
@@ -134,28 +162,56 @@ function createCommentElement(text, author) {
   return comment;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 document.getElementById('file-upload').addEventListener('change', handleFileSelect);
 
-function handleFileSelect(event) {
+function handleFileSelect(event, taskName) {
   const file = event.target.files[0];
   if (file) {
     const reader = new FileReader();
     reader.onload = function (e) {
-      console.log(e.target.result);
+      const fileContent = e.target.result;
+      const attachmentData = {
+        taskName: taskName,
+        filename: file.name,
+        fileContent: fileContent
+      };
+      localStorage.setItem(`attachment-${taskName}-${file.name}`, JSON.stringify(attachmentData));
+      console.log('Attachment uploaded successfully:', attachmentData);
     };
-    reader.readAsText(file);
-    const formData = new FormData();
-    formData.append('file', file);
-    fetch('/api/create_user', {
-      method: 'POST',
-      body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-      console.log('File uploaded successfully:', data);
-    })
-    .catch(error => {
-      console.error('Error uploading file:', error);
-    });
+    reader.readAsDataURL(file);
   }
+}
+
+function loadAttachments(taskName) {
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key.startsWith(`attachment-${taskName}`)) {
+      const attachmentData = JSON.parse(localStorage.getItem(key));
+      displayAttachment(attachmentData);
+    }
+  }
+}
+
+function displayAttachment(attachmentData) {
+  const attachmentsList = document.getElementById('attachments-list');
+  const attachmentElement = document.createElement('div');
+  attachmentElement.classList.add('attachment');
+  attachmentElement.innerHTML = `
+    <div class="filename">${attachmentData.filename}</div>
+    <img src="${attachmentData.fileContent}" alt="Attachment" />
+  `;
+  attachmentsList.appendChild(attachmentElement);
 }
