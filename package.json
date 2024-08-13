@@ -1,0 +1,28 @@
+{
+  "devDependencies": {
+    "pkg": "^5.8.1"
+  },
+  "bin": {
+    "myapp": "./start.js"
+  },
+  "name": "my-project",
+  "version": "1.0.0",
+  "description": "webpackage",
+  "main": "start.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qiuguanzhi/webcheck.git"
+  },
+  "keywords": [
+    "Qgz20051006"
+  ],
+  "author": "Qgz",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/qiuguanzhi/webcheck/issues"
+  },
+  "homepage": "https://github.com/qiuguanzhi/webcheck#readme"
+}
