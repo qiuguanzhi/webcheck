@@ -30,7 +30,8 @@ document.addEventListener('DOMContentLoaded', function () {
       addTextarea.value = '';
     }
   });
-
+  document.getElementById('file-upload').addEventListener('change', handleFileSelect);
+  
   commentList.addEventListener('click', function (event) {
     const editButton = event.target.closest('.comment-actions button:first-child');
     const deleteButton = event.target.closest('.comment-actions button:last-child');
@@ -179,27 +180,62 @@ function createCommentElement(text, author) {
 
 
 
-document.getElementById('file-upload').addEventListener('change', handleFileSelect);
 
-function handleFileSelect(event, taskName) {
+
+function handleFileSelect(event) {
   const file = event.target.files[0];
   if (file) {
     const reader = new FileReader();
-    reader.onload = function (e) {
+    reader.onload = function(e) {
       const fileContent = e.target.result;
       const attachmentData = {
         taskName: taskName,
         filename: file.name,
         fileContent: fileContent
       };
+     
       localStorage.setItem(`attachment-${taskName}-${file.name}`, JSON.stringify(attachmentData));
-      console.log('Attachment uploaded successfully:', attachmentData);
+   
+      displayAttachment(attachmentData);
     };
     reader.readAsDataURL(file);
   }
 }
 
+function displayAttachment(attachmentData) {
+  const attachmentsList = document.getElementById('attachments-list');
+  const attachmentElement = document.createElement('div');
+  attachmentElement.classList.add('attachment');
+  attachmentElement.innerHTML = `
+    <div class="filename">${attachmentData.filename}</div>
+   
+    ${attachmentData.fileContent.startsWith('data:image') ? `<img src="${attachmentData.fileContent}" alt="Attachment" style="max-width: 100%; height: auto;"/>` : ''}
+    <button class="remove-attachment" data-filename="${attachmentData.filename}">删除</button>
+  `;
+  attachmentsList.appendChild(attachmentElement);
+
+ 
+  attachmentElement.querySelector('.remove-attachment').addEventListener('click', function() {
+    const filename = this.getAttribute('data-filename');
+ 
+    removeAttachmentFromLocalStorage(taskName, filename);
+  
+    this.closest('.attachment').remove();
+  });
+}
+function removeAttachmentFromLocalStorage(taskName, filename) {
+  const key = `attachment-${taskName}-${filename}`;
+  if (localStorage.getItem(key)) {
+    localStorage.removeItem(key);
+  }
+  loadAttachments(taskName);
+}
+loadAttachments(taskName);
+
 function loadAttachments(taskName) {
+  // 清空现有附件列表
+  const attachmentsList = document.getElementById('attachments-list');
+  attachmentsList.innerHTML = '';
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
     if (key.startsWith(`attachment-${taskName}`)) {
