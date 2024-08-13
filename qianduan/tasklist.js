@@ -94,7 +94,9 @@ document.addEventListener('DOMContentLoaded', function () {
         newTask.appendChild(taskName);
         newTask.appendChild(editTrigger);
         newTask.addEventListener('click', function () {
-            window.location.href = 'comment.html';
+            const taskText = cardName;
+            const encodedTaskText = encodeURIComponent(taskText); 
+            window.location.href = `comment.html?taskName=${encodedTaskText}`;
         });
         taskList.appendChild(newTask);
         saveBoards();
@@ -135,35 +137,42 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
-    document.addEventListener('contextmenu', function(event) {
-        
-        if (event.target.closest('.task-item')) {
-            
-            event.preventDefault();
-            const menu = document.createElement('div');
-            menu.style.position = 'absolute';
-            menu.style.top = event.pageY + 'px';
-            menu.style.left = event.pageX + 'px';
-            menu.innerHTML = '<button onclick="removeTask(event)">删除任务</button>';
-            document.body.appendChild(menu);
-
-            setTimeout(() => {
-                document.body.removeChild(menu);
-            }, 5000);
-        }
-    });
-
-    function removeTask(event) {
-    
-        const taskItem = event.target.closest('.task-item');
-        if (taskItem) {
-        
-            const taskList = taskItem.parentNode;
-           
-            taskList.removeChild(taskItem);
-
+    function removeTask(taskElement) {
+        if (taskElement.classList.contains('task-item')) {
+            taskElement.parentNode.removeChild(taskElement);
             saveBoards();
         }
     }
+    
+    document.addEventListener('contextmenu', function(event) {
+        if (event.target.classList.contains('task-item')) {
+            event.preventDefault();
+            const deleteButton = document.createElement('button');
+            deleteButton.innerHTML = '删除';
+            deleteButton.style.padding = '5px 10px';
+            deleteButton.style.fontSize = '12px'; 
+            deleteButton.style.cursor = 'pointer'; 
+            deleteButton.style.position = 'fixed'; 
+            deleteButton.style.top = `${event.pageY + 5}px`;
+            deleteButton.style.left = `${event.pageX + 5}px`; 
+    
+            deleteButton.addEventListener('click', function() {
+                removeTask(event.target.closest('.task-item'));
+                document.body.removeChild(deleteButton);
+            });
+    
+            document.body.appendChild(deleteButton);
+            deleteButton.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+    
+            document.addEventListener('click', function() {
+                if (deleteButton) {
+                    document.body.removeChild(deleteButton);
+                    deleteButton = null;
+                }
+            });
+        }
+    });
 
 });

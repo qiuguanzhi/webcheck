@@ -187,15 +187,15 @@ body {
     .task-item span {
         display: inline-block;
         margin-right: 10px;
-        /* 与“...”符号保持一定间距 */
+      
     }
 
-    /* 可选：为获得焦点的文本添加样式 */
+   
     .task-item span:focus {
         outline: none;
-        /* 去除默认的聚焦轮廓 */
+       
         background-color: #f5f50d;
-        /* 聚焦时的背景色 */
+       
     }
 
 }
