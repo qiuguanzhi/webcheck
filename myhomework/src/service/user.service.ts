@@ -8,7 +8,7 @@ export class UserService {
   private dbPool: any; 
 
   async onInit() {
-    this.dbPool = mysql.createPool({
+    this.dbPool = await mysql.createPool({
       host: 'localhost',
       user: 'root',
       password: 'Shule543279448',
