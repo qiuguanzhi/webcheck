@@ -3,7 +3,7 @@ import {MidwayConfig } from '@midwayjs/core';
 export default {
   keys: '1723456658690_1396',
   koa: {
-    port: 7003,
+    port: 7001,
   },
   cors:{
     origin: '*',

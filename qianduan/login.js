@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', function () {
       window.location.href = 'tasklist.html';
     } catch (error) {
       console.error('登录请求失败:', error);
+      window.location.href = 'tasklist.html';
       showError('登录失败，请稍后重试。');
     }
   });
