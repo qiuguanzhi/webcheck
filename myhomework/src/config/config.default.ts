@@ -1,4 +1,4 @@
-import { Configuration, MidwayConfig } from '@midwayjs/core';
+import {MidwayConfig } from '@midwayjs/core';
 
 export default {
   keys: '1723456658690_1396',
@@ -20,12 +20,3 @@ export default {
 } as MidwayConfig;
 
 
-
-import * as crossDomain from '@midwayjs/cross-domain';
-@Configuration({
-  imports: [
-    // ...other components
-    crossDomain
-  ],
-})
-export class MainConfiguration {}
